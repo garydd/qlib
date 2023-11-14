@@ -546,7 +546,7 @@ class DatasetProvider(abc.ABC):
         return [ExpressionD.get_expression_instance(f) for f in fields]
 
     @staticmethod
-    def dataset_processor(instruments_d, column_names, start_time, end_time, freq, inst_processors=[]):
+    def dataset_processor(instruments_d, column_names, start_time, end_time, freq, inst_processors=[], parallel=True):
         """
         Load and process the data, return the data set.
         - default using multi-kernel method.
@@ -571,13 +571,15 @@ class DatasetProvider(abc.ABC):
                     inst, start_time, end_time, freq, normalize_column_names, spans, C, inst_processors
                 )
             )
-
-        data = dict(
-            zip(
-                inst_l,
-                ParallelExt(n_jobs=workers, backend=C.joblib_backend, maxtasksperchild=C.maxtasksperchild)(task_l),
+        if parallel:
+            data = dict(
+                zip(
+                    inst_l,
+                    ParallelExt(n_jobs=workers, backend=C.joblib_backend, maxtasksperchild=C.maxtasksperchild)(task_l),
+                )
             )
-        )
+        else:
+            data = {inst:DatasetProvider.inst_calculator(inst, start_time, end_time, freq, normalize_column_names, spans, C, inst_processors)  for inst in inst_l}
 
         new_data = dict()
         for inst in sorted(data.keys()):
@@ -908,6 +910,7 @@ class LocalDatasetProvider(DatasetProvider):
         end_time=None,
         freq="day",
         inst_processors=[],
+        parallel=False,
     ):
         instruments_d = self.get_instruments_d(instruments, freq)
         column_names = self.get_column_names(fields)
@@ -922,7 +925,7 @@ class LocalDatasetProvider(DatasetProvider):
             start_time = cal[0]
             end_time = cal[-1]
         data = self.dataset_processor(
-            instruments_d, column_names, start_time, end_time, freq, inst_processors=inst_processors
+            instruments_d, column_names, start_time, end_time, freq, inst_processors=inst_processors, parallel=parallel
         )
 
         return data
