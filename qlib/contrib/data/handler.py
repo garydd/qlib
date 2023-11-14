@@ -430,3 +430,47 @@ class Alpha158(DataHandlerLP):
 class Alpha158vwap(Alpha158):
     def get_label_config(self):
         return ["Ref($vwap, -2)/Ref($vwap, -1) - 1"], ["LABEL0"]
+
+
+class SimpleAlphaHandler(Alpha158):
+    def __init__(
+            self,
+            instruments="all",
+            start_time=None,
+            end_time=None,
+            freq="day",
+            infer_processors=[],
+            learn_processors=_DEFAULT_LEARN_PROCESSORS,
+            fit_start_time=None,
+            fit_end_time=None,
+            process_type=DataHandlerLP.PTYPE_A,
+            filter_pipe=None,
+            inst_processors=None,
+            **kwargs
+    ):
+        super().__init__(
+            instruments=instruments,
+            start_time=start_time,
+            end_time=end_time,
+            freq=freq,
+            infer_processors=infer_processors,
+            learn_processors=learn_processors,
+            fit_start_time=fit_start_time,
+            fit_end_time=fit_end_time,
+            process_type=process_type,
+            filter_pipe=filter_pipe,
+            inst_processors=inst_processors,
+            **kwargs
+        )
+
+    def get_feature_config(self):
+        conf = {
+            #"kbar": {},
+            "price": {
+                "windows": [0],
+                "feature": ["OPEN", "HIGH", "LOW", "VWAP"],
+            },
+            #"rolling": {},
+        }
+        return self.parse_config_to_fields(conf)
+
