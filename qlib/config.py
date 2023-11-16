@@ -106,7 +106,7 @@ _default_config = {
     "feature_provider": "LocalFeatureProvider",
     "pit_provider": "LocalPITProvider",
     "expression_provider": "LocalExpressionProvider",
-    "dataset_provider": "LocalDatasetProvider",
+    "dataset_provider": {'class': 'LocalDatasetProvider', 'module_path': 'qlib.data.data', 'kwargs':{'parallel': False}},#"LocalDatasetProvider",
     "provider": "LocalProvider",
     # config it in qlib.init()
     # "provider_uri" str or dict:

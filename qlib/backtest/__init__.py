@@ -105,6 +105,8 @@ def get_exchange(
             min_cost=min_cost,
             **kwargs,
         )
+        
+        logger.info("Done creating new exchange")
         return exchange
     else:
         return init_instance_by_config(exchange, accept_types=Exchange)

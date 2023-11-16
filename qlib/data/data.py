@@ -888,7 +888,7 @@ class LocalDatasetProvider(DatasetProvider):
     Provide dataset data from local data source.
     """
 
-    def __init__(self, align_time: bool = True):
+    def __init__(self, align_time: bool = True, **kwargs):
         """
         Parameters
         ----------
@@ -901,6 +901,7 @@ class LocalDatasetProvider(DatasetProvider):
         """
         super().__init__()
         self.align_time = align_time
+        self.parallel = kwargs.get('parallel', True)
 
     def dataset(
         self,
@@ -910,7 +911,6 @@ class LocalDatasetProvider(DatasetProvider):
         end_time=None,
         freq="day",
         inst_processors=[],
-        parallel=False,
     ):
         instruments_d = self.get_instruments_d(instruments, freq)
         column_names = self.get_column_names(fields)
@@ -925,7 +925,7 @@ class LocalDatasetProvider(DatasetProvider):
             start_time = cal[0]
             end_time = cal[-1]
         data = self.dataset_processor(
-            instruments_d, column_names, start_time, end_time, freq, inst_processors=inst_processors, parallel=parallel
+            instruments_d, column_names, start_time, end_time, freq, inst_processors=inst_processors, parallel=self.parallel,
         )
 
         return data
